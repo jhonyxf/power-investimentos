@@ -17,19 +17,24 @@
           Insira o valor e o tempo para calcular os rendimentos
         </mat-card-subtitle>
       </mat-card-header>
-      
+
       <mat-card-content>
         <div class="form-fields">
           <mat-form-field appearance="outline">
             <mat-label>Valor a investir</mat-label>
-            <input matInput placeholder="10000" [(ngModel)]="valor">
+            <input matInput placeholder="10000" [(ngModel)]="valor" />
             <mat-icon matSuffix>attach_money</mat-icon>
           </mat-form-field>
 
           <div class="time-fields">
             <mat-form-field appearance="outline">
               <mat-label>Tempo</mat-label>
-              <input matInput type="number" placeholder="12" [(ngModel)]="tempo">
+              <input
+                matInput
+                type="number"
+                placeholder="12"
+                [(ngModel)]="tempo"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -44,12 +49,22 @@
           <!-- Campo editável para taxa Selic -->
           <mat-form-field appearance="outline" class="selic-field">
             <mat-label>Taxa Selic (%)</mat-label>
-            <input matInput type="number" step="0.01" [(ngModel)]="taxas.selic">
+            <input
+              matInput
+              type="number"
+              step="0.01"
+              [(ngModel)]="taxas.selic"
+            />
             <mat-icon matSuffix>percent</mat-icon>
             <mat-hint>Taxa Selic atual - editável para simulações</mat-hint>
           </mat-form-field>
 
-          <button mat-raised-button color="primary" class="calc-button" (click)="calcularRendimentos()">
+          <button
+            mat-raised-button
+            color="primary"
+            class="calc-button"
+            (click)="calcularRendimentos()"
+          >
             <mat-icon>calculate</mat-icon>
             Calcular Rendimentos
           </button>
@@ -57,20 +72,38 @@
 
         <!-- Taxas atuais -->
         <div class="rates-info">
-          <h3>Taxas Atuais</h3>
+          <h3>Taxas Atuais - editável para simulações</h3>
           <div class="rates-grid">
-            <div class="rate-item">
-              <span class="rate-label">CDI:</span>
-              <span class="rate-value">{{ formatarPercentual(taxas.cdi) }}</span>
-            </div>
-            <div class="rate-item">
-              <span class="rate-label">Selic:</span>
-              <span class="rate-value">{{ formatarPercentual(taxas.selic) }}</span>
-            </div>
-            <div class="rate-item">
-              <span class="rate-label">IPCA:</span>
-              <span class="rate-value">{{ formatarPercentual(taxas.ipca) }}</span>
-            </div>
+            <mat-form-field appearance="outline" class="cdi-field">
+              <mat-label>CDI (%)</mat-label>
+              <input
+                matInput
+                type="number"
+                step="0.01"
+                [(ngModel)]="taxas.cdi"
+              />
+              <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="selic-field">
+              <mat-label>Selic (%)</mat-label>
+              <input
+                matInput
+                type="number"
+                step="0.01"
+                [(ngModel)]="taxas.selic"
+              />
+              <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="ipca-field">
+              <mat-label>IPCA (%)</mat-label>
+              <input
+                matInput
+                type="number"
+                step="0.01"
+                [(ngModel)]="taxas.ipca"
+              />
+              <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
           </div>
         </div>
       </mat-card-content>
@@ -87,22 +120,31 @@
           Comparação de rendimentos para {{ resultados.periodoMeses }} meses
         </mat-card-subtitle>
       </mat-card-header>
-      
+
       <mat-card-content>
         <div class="investments-list">
-          <div class="investment-item" *ngFor="let inv of getInvestimentosOrdenados()">
+          <div
+            class="investment-item"
+            *ngFor="let inv of getInvestimentosOrdenados()"
+          >
             <div class="investment-header">
               <h3>{{ inv.nome }}</h3>
-              <span class="final-amount">{{ formatarMoeda(inv.montanteLiquido) }}</span>
+              <span class="final-amount"
+                >{{ formatarMoeda(inv.montanteLiquido) }}</span
+              >
             </div>
             <div class="investment-details">
               <div class="detail-item">
                 <span>Rendimento:</span>
-                <span class="positive">{{ formatarMoeda(inv.rendimentoLiquido) }}</span>
+                <span class="positive"
+                  >{{ formatarMoeda(inv.rendimentoLiquido) }}</span
+                >
               </div>
               <div class="detail-item" *ngIf="inv.impostoValor > 0">
                 <span>IR ({{ resultados.aliquotaIR }}%):</span>
-                <span class="negative">-{{ formatarMoeda(inv.impostoValor) }}</span>
+                <span class="negative"
+                  >-{{ formatarMoeda(inv.impostoValor) }}</span
+                >
               </div>
             </div>
           </div>
@@ -111,7 +153,9 @@
         <div class="summary">
           <h4>Resumo</h4>
           <div class="summary-details">
-            <div>Valor inicial: {{ formatarMoeda(resultados.valorInicial) }}</div>
+            <div>
+              Valor inicial: {{ formatarMoeda(resultados.valorInicial) }}
+            </div>
             <div>Período: {{ resultados.periodoMeses }} meses</div>
             <div>Alíquota IR: {{ resultados.aliquotaIR }}%</div>
           </div>
@@ -125,7 +169,7 @@
     <mat-card-header>
       <mat-card-title>Informações Importantes</mat-card-title>
     </mat-card-header>
-    
+
     <mat-card-content>
       <mat-tab-group>
         <mat-tab label="Impostos">
@@ -149,7 +193,7 @@
             </div>
           </div>
         </mat-tab>
-        
+
         <mat-tab label="Riscos">
           <div class="tab-content">
             <div class="info-section">
@@ -168,7 +212,7 @@
             </div>
           </div>
         </mat-tab>
-        
+
         <mat-tab label="Liquidez">
           <div class="tab-content">
             <div class="info-section">
@@ -193,4 +237,3 @@
     </mat-card-content>
   </mat-card>
 </div>
-

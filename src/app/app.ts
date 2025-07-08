@@ -48,18 +48,18 @@ export class App {
   resultados: Resultados | null = null;
 
   // Taxas atuais - Selic editável
-  taxas = {
-    cdi: 14.90,
-    selic: 15.00,
-    ipca: 5.32
-  };
+  taxas: { cdi: number, selic: number, ipca: number } = {
+    cdi: 14.90, // Valor inicial do CDI
+    selic: 15.00, // Valor inicial da Selic
+    ipca: 5.32 // Valor inicial do IPCA
+  }
 
   calcularRendimentos() {
     if (!this.valor || !this.tempo) return;
 
     const valorInicial = parseFloat(this.valor.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
     const periodoMeses = this.unidadeTempo === 'anos' ? parseInt(this.tempo) * 12 : parseInt(this.tempo);
-    
+
     if (isNaN(valorInicial) || isNaN(periodoMeses) || valorInicial <= 0 || periodoMeses <= 0) {
       alert('Por favor, insira valores válidos');
       return;
@@ -73,22 +73,22 @@ export class App {
 
     // CDB 100% CDI
     const cdb100 = this.calcularJurosCompostos(valorInicial, this.taxas.cdi, periodoMeses, aliquotaIR);
-    
+
     // CDB 110% CDI
     const cdb110 = this.calcularJurosCompostos(valorInicial, this.taxas.cdi * 1.1, periodoMeses, aliquotaIR);
-    
+
     // CDB 120% CDI
     const cdb120 = this.calcularJurosCompostos(valorInicial, this.taxas.cdi * 1.2, periodoMeses, aliquotaIR);
 
     // LCA/LCI 85% CDI (isentos de IR)
     const lca85 = this.calcularJurosCompostos(valorInicial, this.taxas.cdi * 0.85, periodoMeses, 0);
-    
+
     // LCA/LCI 90% CDI (isentos de IR)
     const lca90 = this.calcularJurosCompostos(valorInicial, this.taxas.cdi * 0.9, periodoMeses, 0);
 
     // Tesouro Selic (taxa de custódia 0.2% ao ano)
     const tesouroSelic = this.calcularJurosCompostos(valorInicial, this.taxas.selic - 0.2, periodoMeses, aliquotaIR);
-    
+
     // Tesouro IPCA+ (exemplo: IPCA + 6%)
     const tesouroIPCA = this.calcularJurosCompostos(valorInicial, this.taxas.ipca + 6, periodoMeses, aliquotaIR);
 
@@ -119,7 +119,7 @@ export class App {
     const impostoValor = rendimentoBruto * (impostoIR / 100);
     const rendimentoLiquido = rendimentoBruto - impostoValor;
     const montanteLiquido = principal + rendimentoLiquido;
-    
+
     return {
       montanteBruto: montante,
       montanteLiquido,
@@ -142,10 +142,9 @@ export class App {
 
   getInvestimentosOrdenados() {
     if (!this.resultados) return [];
-    
+
     return Object.entries(this.resultados.investimentos)
       .sort((a, b) => b[1].montanteLiquido - a[1].montanteLiquido)
       .map(([key, inv]) => ({ key, ...inv }));
   }
 }
-
