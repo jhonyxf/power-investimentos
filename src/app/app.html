@@ -1,0 +1,196 @@
+<div class="app-container">
+  <div class="header">
+    <mat-icon class="header-icon">calculate</mat-icon>
+    <h1>Calculadora de Investimentos</h1>
+    <p>Compare o rendimento de diferentes investimentos brasileiros</p>
+  </div>
+
+  <div class="main-content">
+    <!-- Formulário de entrada -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attach_money</mat-icon>
+          Dados do Investimento
+        </mat-card-title>
+        <mat-card-subtitle>
+          Insira o valor e o tempo para calcular os rendimentos
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="form-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Valor a investir</mat-label>
+            <input matInput placeholder="10000" [(ngModel)]="valor">
+            <mat-icon matSuffix>attach_money</mat-icon>
+          </mat-form-field>
+
+          <div class="time-fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Tempo</mat-label>
+              <input matInput type="number" placeholder="12" [(ngModel)]="tempo">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Unidade</mat-label>
+              <mat-select [(ngModel)]="unidadeTempo">
+                <mat-option value="meses">Meses</mat-option>
+                <mat-option value="anos">Anos</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Campo editável para taxa Selic -->
+          <mat-form-field appearance="outline" class="selic-field">
+            <mat-label>Taxa Selic (%)</mat-label>
+            <input matInput type="number" step="0.01" [(ngModel)]="taxas.selic">
+            <mat-icon matSuffix>percent</mat-icon>
+            <mat-hint>Taxa Selic atual - editável para simulações</mat-hint>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="calc-button" (click)="calcularRendimentos()">
+            <mat-icon>calculate</mat-icon>
+            Calcular Rendimentos
+          </button>
+        </div>
+
+        <!-- Taxas atuais -->
+        <div class="rates-info">
+          <h3>Taxas Atuais</h3>
+          <div class="rates-grid">
+            <div class="rate-item">
+              <span class="rate-label">CDI:</span>
+              <span class="rate-value">{{ formatarPercentual(taxas.cdi) }}</span>
+            </div>
+            <div class="rate-item">
+              <span class="rate-label">Selic:</span>
+              <span class="rate-value">{{ formatarPercentual(taxas.selic) }}</span>
+            </div>
+            <div class="rate-item">
+              <span class="rate-label">IPCA:</span>
+              <span class="rate-value">{{ formatarPercentual(taxas.ipca) }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Resultados -->
+    <mat-card class="results-card" *ngIf="resultados">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>trending_up</mat-icon>
+          Resultados
+        </mat-card-title>
+        <mat-card-subtitle>
+          Comparação de rendimentos para {{ resultados.periodoMeses }} meses
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="investments-list">
+          <div class="investment-item" *ngFor="let inv of getInvestimentosOrdenados()">
+            <div class="investment-header">
+              <h3>{{ inv.nome }}</h3>
+              <span class="final-amount">{{ formatarMoeda(inv.montanteLiquido) }}</span>
+            </div>
+            <div class="investment-details">
+              <div class="detail-item">
+                <span>Rendimento:</span>
+                <span class="positive">{{ formatarMoeda(inv.rendimentoLiquido) }}</span>
+              </div>
+              <div class="detail-item" *ngIf="inv.impostoValor > 0">
+                <span>IR ({{ resultados.aliquotaIR }}%):</span>
+                <span class="negative">-{{ formatarMoeda(inv.impostoValor) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary">
+          <h4>Resumo</h4>
+          <div class="summary-details">
+            <div>Valor inicial: {{ formatarMoeda(resultados.valorInicial) }}</div>
+            <div>Período: {{ resultados.periodoMeses }} meses</div>
+            <div>Alíquota IR: {{ resultados.aliquotaIR }}%</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Informações adicionais -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-card-title>Informações Importantes</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <mat-tab-group>
+        <mat-tab label="Impostos">
+          <div class="tab-content">
+            <div class="info-section">
+              <h4>Tributação por Prazo</h4>
+              <ul>
+                <li>Até 180 dias: 22,5%</li>
+                <li>181 a 360 dias: 20%</li>
+                <li>361 a 720 dias: 17,5%</li>
+                <li>Acima de 720 dias: 15%</li>
+              </ul>
+            </div>
+            <div class="info-section">
+              <h4>Isenções</h4>
+              <ul>
+                <li>LCA/LCI: Isentos de IR</li>
+                <li>Poupança: Isenta de IR</li>
+                <li>Tesouro: Taxa de custódia 0,2% a.a.</li>
+              </ul>
+            </div>
+          </div>
+        </mat-tab>
+        
+        <mat-tab label="Riscos">
+          <div class="tab-content">
+            <div class="info-section">
+              <h4>Baixo Risco</h4>
+              <ul>
+                <li>Tesouro Direto: Garantido pelo governo</li>
+                <li>Poupança: Garantida pelo FGC até R$ 250 mil</li>
+              </ul>
+            </div>
+            <div class="info-section">
+              <h4>Risco Moderado</h4>
+              <ul>
+                <li>CDB/LCA/LCI: Garantidos pelo FGC até R$ 250 mil</li>
+                <li>Depende da solidez da instituição</li>
+              </ul>
+            </div>
+          </div>
+        </mat-tab>
+        
+        <mat-tab label="Liquidez">
+          <div class="tab-content">
+            <div class="info-section">
+              <h4>Liquidez Diária</h4>
+              <ul>
+                <li>Poupança</li>
+                <li>Tesouro Selic</li>
+                <li>Alguns CDBs</li>
+              </ul>
+            </div>
+            <div class="info-section">
+              <h4>Prazo Determinado</h4>
+              <ul>
+                <li>LCA/LCI: Carência mínima 90 dias</li>
+                <li>CDBs prefixados</li>
+                <li>Tesouro IPCA+</li>
+              </ul>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>
+
