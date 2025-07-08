@@ -57,7 +57,7 @@ export class App {
   calcularRendimentos() {
     if (!this.valor || !this.tempo) return;
 
-    const valorInicial = parseFloat(this.valor.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
+    const valorInicial = parseFloat(this.valor.replace(/\./g, '').replace(',', '.'));
     const periodoMeses = this.unidadeTempo === 'anos' ? parseInt(this.tempo) * 12 : parseInt(this.tempo);
 
     if (isNaN(valorInicial) || isNaN(periodoMeses) || valorInicial <= 0 || periodoMeses <= 0) {
@@ -134,6 +134,25 @@ export class App {
       style: 'currency',
       currency: 'BRL'
     }).format(valor);
+  }
+
+  formatarInputMoeda(event: any) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // 1. Remove tudo que não for dígito
+    value = value.replace(/\D/g, '');
+
+    if (!value) {
+      this.valor = '';
+      return;
+    }
+
+    // 2. Converte para número para tratar como centavos
+    const valueAsNumber = parseInt(value, 10) / 100;
+
+    // 3. Formata de volta para o padrão BRL (ex: 1.234,56)
+    this.valor = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(valueAsNumber);
   }
 
   formatarPercentual(valor: number): string {

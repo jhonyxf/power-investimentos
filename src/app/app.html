@@ -22,19 +22,19 @@
         <div class="form-fields">
           <mat-form-field appearance="outline">
             <mat-label>Valor a investir</mat-label>
-            <input matInput placeholder="10000" [(ngModel)]="valor" />
-            <mat-icon matSuffix>attach_money</mat-icon>
+            <input
+              matInput
+              type="tel"
+              placeholder="0,00"
+              [(ngModel)]="valor"
+              (keyup)="formatarInputMoeda($event)"
+            />
           </mat-form-field>
 
           <div class="time-fields">
             <mat-form-field appearance="outline">
               <mat-label>Tempo</mat-label>
-              <input
-                matInput
-                type="number"
-                placeholder="12"
-                [(ngModel)]="tempo"
-              />
+              <input matInput type="number" [(ngModel)]="tempo" />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -60,6 +60,7 @@
           </mat-form-field>
 
           <button
+            [disabled]="!this.valor || !this.tempo"
             mat-raised-button
             color="primary"
             class="calc-button"
@@ -68,11 +69,17 @@
             <mat-icon>calculate</mat-icon>
             Calcular Rendimentos
           </button>
+          <span
+            style="color: red; font-size: 12px; text-align: center"
+            *ngIf="!this.valor || !this.tempo"
+          >
+            Preencha todos os campos para calcular
+          </span>
         </div>
 
         <!-- Taxas atuais -->
-        <div class="rates-info">
-          <h3>Taxas Atuais - editável para simulações</h3>
+        <div class="rates-info" style="padding: 16px 8px">
+          <h5>Taxas Atuais - editável para simulações</h5>
           <div class="rates-grid">
             <mat-form-field appearance="outline" class="cdi-field">
               <mat-label>CDI (%)</mat-label>
